@@ -787,7 +787,29 @@
       try {
         const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
         await setDoc(doc(fireDb, 'artifacts', appId, 'users', currentCloudUser.uid, 'tasks', task.id), { ...task, updatedAt: new Date().toISOString() });
-      } catch (e) { console.warn('Cloud sync skipped:', e.message); }
+      } catch (e) {
+        console.warn('Cloud sync skipped:', e.message);
+        showToast('Sync error: ' + e.message, 'error');
+      }
+    }
+
+    async function syncAllToCloud() {
+      if (!currentCloudUser || !fireDb) return;
+      let ok = 0, fail = 0;
+      for (const task of tasks) {
+        if (task.id.startsWith('bench-')) continue;
+        try {
+          const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+          await setDoc(doc(fireDb, 'artifacts', appId, 'users', currentCloudUser.uid, 'tasks', task.id), { ...task, updatedAt: new Date().toISOString() });
+          ok++;
+        } catch (e) {
+          fail++;
+          console.warn('Bulk sync failed for', task.id, e.message);
+          showToast('Sync error: ' + e.message, 'error');
+          break;
+        }
+      }
+      if (fail === 0 && ok > 0) showToast(`Pushed ${ok} task(s) to cloud`, 'success');
     }
 
     async function deleteFromCloud(taskId) {

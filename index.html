@@ -6,6 +6,8 @@
   <title>TaskFlow Pro — Enterprise Task Lifecycle &amp; Audit Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Identity Services — required for Google Tasks OAuth -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -574,6 +576,52 @@
             </div>
           </form>
         </div>
+        <!-- ── Google Tasks Sync ─────────────────────────────────── -->
+        <div class="border border-slate-200 rounded-xl p-3.5 space-y-3 bg-white">
+          <div class="font-bold text-slate-800 flex items-center text-[12px]">
+            <!-- Google G icon (inline SVG) -->
+            <svg class="w-4 h-4 mr-1.5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            Google Tasks Sync
+          </div>
+          <!-- Signed-out state -->
+          <div id="gTasksSignedOut">
+            <p class="text-slate-500 text-[11px] leading-relaxed mb-2">Sign in with your Google account to push tasks to Google Tasks and keep them in sync.</p>
+            <button id="gSignInBtn" class="w-full py-1.5 text-xs font-semibold text-white bg-[#4285F4] hover:bg-[#3367d6] rounded-lg transition-colors flex items-center justify-center space-x-2">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+              <span>Sign in with Google</span>
+            </button>
+          </div>
+          <!-- Signed-in state -->
+          <div id="gTasksSignedIn" class="hidden space-y-2.5">
+            <div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 border border-slate-200">
+              <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold" id="gUserAvatar">G</div>
+                <div>
+                  <div id="gUserName" class="text-[11px] font-bold text-slate-800">Google Account</div>
+                  <div id="gUserEmail" class="text-[10px] text-slate-500"></div>
+                </div>
+              </div>
+              <button id="gSignOutBtn" class="text-[10px] font-semibold text-rose-600 hover:text-rose-800">Sign Out</button>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Tasklist:</span>
+              <span id="gTasksListName" class="font-semibold text-slate-700 bg-blue-50 px-2 py-0.5 rounded text-[10px]">TaskFlow Pro</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Sync Status:</span>
+              <span id="gTasksSyncStatus" class="font-semibold text-slate-500">—</span>
+            </div>
+            <button id="gSyncAllBtn" class="w-full py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center justify-center">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5"></i>Push All Tasks to Google Tasks
+            </button>
+          </div>
+        </div>
       </div>
       <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
         <button id="signOutAccountBtn" class="text-xs font-semibold text-rose-600 hover:text-rose-800 flex items-center"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i>Reset Session</button>
@@ -608,6 +656,15 @@
   <script type="module">
     'use strict';
 
+    // ═══════════════════════════════════════════════════════════
+    // GOOGLE TASKS SYNC CONFIG
+    // Replace the value below with your OAuth 2.0 Client ID from
+    // https://console.cloud.google.com/  (Web application type,
+    // authorised origin = the URL you open this file from).
+    // The Google Tasks API must be enabled in the same project.
+    // ═══════════════════════════════════════════════════════════
+    const GOOGLE_CLIENT_ID = '966873415277-4im34o5cv3p4s16kc7r7cq9jcqkql8f5.apps.googleusercontent.com';
+
     // ── Utilities ────────────────────────────────────────────
     function localDT(date = new Date()) {
       const off = date.getTimezoneOffset() * 60000;
@@ -641,6 +698,21 @@
     const hasLiveFirebase = (typeof __firebase_config !== 'undefined') && !!__firebase_config;
 
     let fireAuth = null, fireDb = null, currentCloudUser = null, unsubscribeCloud = null;
+
+    // ── Google Tasks State ────────────────────────────────────
+    let gTokenClient  = null;   // GIS TokenClient
+    let gAccessToken  = null;   // current OAuth access token
+    let gTokenExpiry  = 0;      // epoch ms when the token expires
+    let gTasklistId   = null;   // ID of the "TaskFlow Pro" tasklist
+    let gUserProfile  = null;   // { name, email }
+    // Map localTaskId → Google Tasks task id, persisted to localStorage
+    const G_ID_MAP_KEY = 'TASKFLOW_GTASKS_ID_MAP';
+    let gIdMap = (() => { try { return JSON.parse(localStorage.getItem(G_ID_MAP_KEY) || '{}'); } catch { return {}; } })();
+    function saveGIdMap() { localStorage.setItem(G_ID_MAP_KEY, JSON.stringify(gIdMap)); }
+    // Persist sign-in state across page reloads (profile only; token is re-requested silently)
+    const G_PROFILE_KEY = 'TASKFLOW_GOOGLE_PROFILE';
+    function loadGProfile() { try { return JSON.parse(localStorage.getItem(G_PROFILE_KEY) || 'null'); } catch { return null; } }
+    function saveGProfile(p) { localStorage.setItem(G_PROFILE_KEY, p ? JSON.stringify(p) : 'null'); }
 
     // ── IndexedDB Constants ───────────────────────────────────
     const DB_NAME    = 'TaskFlowProDB';
@@ -919,6 +991,7 @@
       await initStorage();
       initListeners();
       initAccountUI();
+      initGoogleTasks();
       initBenchmarkUI();
       renderApp();
       checkDailyReminders();
@@ -1249,7 +1322,7 @@
           e.stopPropagation();
           const id = btn.dataset.id;
           confirmAction('Delete Task', 'Permanently delete this task and all associated audit logs?', async () => {
-            await TaskDB.delete(id); await deleteFromCloud(id);
+            await TaskDB.delete(id); await deleteFromCloud(id); await gDeleteTask(id);
             tasks = tasks.filter(t => t.id !== id);
             renderApp(); updateStorageMetrics(); showToast('Task deleted', 'info');
           });
@@ -1299,7 +1372,7 @@
           createdAt: now, updatedAt: now, statusUpdates: [], completion: null };
         tasks.unshift(task);
       }
-      await TaskDB.put(task); await syncToCloud(task);
+      await TaskDB.put(task); await syncToCloud(task); gSyncTask(task);
       closeTaskModal(); renderApp(); updateStorageMetrics(); checkDailyReminders(); evaluateDueAlarms();
       showToast('Task saved', 'success'); playChime(600, 0.1);
     }
@@ -1324,7 +1397,7 @@
         const now = new Date().toISOString();
         task.status = 'completed'; task.updatedAt = now;
         task.completion = { actionTaken: action, completedAt: now };
-        await TaskDB.put(task); await syncToCloud(task);
+        await TaskDB.put(task); await syncToCloud(task); gSyncTask(task);
         closeCompleteModal(); renderApp(); updateStorageMetrics();
         showToast('Task marked as completed with audit record', 'success'); playChime(800, 0.15);
       }
@@ -1768,6 +1841,265 @@
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + dur);
       } catch {}
+    }
+
+    // ── Google Tasks Engine ───────────────────────────────────
+    const GTASKS_SCOPE     = 'https://www.googleapis.com/auth/tasks';
+    const GTASKS_PEOPLE_SCOPE = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
+    const GTASKS_API       = 'https://tasks.googleapis.com/tasks/v1';
+    const GPEOPLE_API      = 'https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses';
+    const GTASKLIST_TITLE  = 'TaskFlow Pro';
+
+    function gIsSignedIn() { return !!gAccessToken && Date.now() < gTokenExpiry; }
+
+    // Request a fresh token (pops the consent popup if needed)
+    function gRequestToken(callback) {
+      if (!GOOGLE_CLIENT_ID) {
+        showToast('Google Client ID not configured — see GOOGLE_CLIENT_ID constant in source.', 'error');
+        return;
+      }
+      if (!gTokenClient) {
+        if (typeof google === 'undefined' || !google.accounts?.oauth2) {
+          showToast('Google Identity Services not loaded. Check your internet connection.', 'error');
+          return;
+        }
+        gTokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: GTASKS_SCOPE + ' ' + GTASKS_PEOPLE_SCOPE,
+          callback: async resp => {
+            if (resp.error) { showToast('Google sign-in failed: ' + resp.error, 'error'); return; }
+            gAccessToken = resp.access_token;
+            gTokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+            await gFetchProfile();
+            await gEnsureTasklist();
+            updateGTasksUI();
+            if (typeof callback === 'function') callback();
+          }
+        });
+      }
+      gTokenClient.requestAccessToken({ prompt: '' });
+    }
+
+    // Silently try to restore session (no-consent prompt) on page load
+    function gTrySilentRestore() {
+      const saved = loadGProfile();
+      if (!saved || !GOOGLE_CLIENT_ID) return;
+      if (typeof google === 'undefined' || !google.accounts?.oauth2) return;
+      gUserProfile = saved;
+      updateGTasksUI(); // show signed-in UI optimistically while we refresh token
+      if (!gTokenClient) {
+        gTokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: GTASKS_SCOPE + ' ' + GTASKS_PEOPLE_SCOPE,
+          callback: async resp => {
+            if (resp.error) { gSignOut(); return; }
+            gAccessToken = resp.access_token;
+            gTokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+            await gEnsureTasklist();
+            updateGTasksUI();
+          }
+        });
+      }
+      gTokenClient.requestAccessToken({ prompt: 'none' });
+    }
+
+    async function gFetchProfile() {
+      try {
+        const r = await fetch(GPEOPLE_API, { headers: { Authorization: 'Bearer ' + gAccessToken } });
+        if (!r.ok) return;
+        const d = await r.json();
+        const name  = d.names?.[0]?.displayName || 'Google User';
+        const email = d.emailAddresses?.[0]?.value || '';
+        gUserProfile = { name, email };
+        saveGProfile(gUserProfile);
+      } catch (e) { console.warn('gFetchProfile:', e.message); }
+    }
+
+    async function gEnsureTasklist() {
+      // Reuse persisted tasklist ID if available
+      const stored = localStorage.getItem('TASKFLOW_GTASKS_LIST_ID');
+      if (stored) { gTasklistId = stored; return; }
+      try {
+        const r = await fetch(GTASKS_API + '/users/@me/lists', {
+          headers: { Authorization: 'Bearer ' + gAccessToken }
+        });
+        if (!r.ok) throw new Error('lists fetch ' + r.status);
+        const data = await r.json();
+        const existing = (data.items || []).find(l => l.title === GTASKLIST_TITLE);
+        if (existing) {
+          gTasklistId = existing.id;
+        } else {
+          const cr = await fetch(GTASKS_API + '/users/@me/lists', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + gAccessToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: GTASKLIST_TITLE })
+          });
+          if (!cr.ok) throw new Error('list create ' + cr.status);
+          const nl = await cr.json();
+          gTasklistId = nl.id;
+        }
+        localStorage.setItem('TASKFLOW_GTASKS_LIST_ID', gTasklistId);
+      } catch (e) { console.warn('gEnsureTasklist:', e.message); }
+    }
+
+    // Convert a local task to Google Tasks payload
+    function gTaskPayload(task) {
+      const payload = {
+        title: task.title,
+        notes: [task.description, task.category ? 'Category: ' + task.category : ''].filter(Boolean).join('\n'),
+        status: task.status === 'completed' ? 'completed' : 'needsAction'
+      };
+      if (task.dueDate) {
+        // Google Tasks due dates are RFC 3339 (date only, midnight UTC)
+        try { payload.due = new Date(task.dueDate).toISOString().replace(/\.\d{3}/, ''); } catch {}
+      }
+      if (task.status === 'completed' && task.completion?.completedAt) {
+        try { payload.completed = new Date(task.completion.completedAt).toISOString().replace(/\.\d{3}/, ''); } catch {}
+      }
+      return payload;
+    }
+
+    async function gEnsureToken() {
+      if (gIsSignedIn()) return true;
+      if (!GOOGLE_CLIENT_ID || typeof google === 'undefined') return false;
+      // Token expired — request silently (no UI popup)
+      return new Promise(resolve => {
+        if (!gTokenClient) { resolve(false); return; }
+        const orig = gTokenClient.callback;
+        gTokenClient.callback = async resp => {
+          if (resp.error) { resolve(false); return; }
+          gAccessToken = resp.access_token;
+          gTokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+          await gEnsureTasklist();
+          resolve(true);
+        };
+        gTokenClient.requestAccessToken({ prompt: 'none' });
+        // restore original callback for interactive use
+        setTimeout(() => { if (gTokenClient) gTokenClient.callback = orig; }, 5000);
+      });
+    }
+
+    // Push a single task to Google Tasks (create or update)
+    async function gSyncTask(task) {
+      if (!gIsSignedIn() && !(await gEnsureToken())) return;
+      if (!gTasklistId) await gEnsureTasklist();
+      if (!gTasklistId) return;
+      if (task.id.startsWith('bench-')) return; // skip synthetic stress-test records
+      const payload = gTaskPayload(task);
+      const gid = gIdMap[task.id];
+      try {
+        if (gid) {
+          // Update existing Google Task
+          await fetch(GTASKS_API + '/lists/' + gTasklistId + '/tasks/' + gid, {
+            method: 'PATCH',
+            headers: { Authorization: 'Bearer ' + gAccessToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          // Create new Google Task
+          const r = await fetch(GTASKS_API + '/lists/' + gTasklistId + '/tasks', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + gAccessToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (r.ok) {
+            const created = await r.json();
+            gIdMap[task.id] = created.id;
+            saveGIdMap();
+          }
+        }
+      } catch (e) { console.warn('gSyncTask:', e.message); }
+    }
+
+    // Delete a task from Google Tasks
+    async function gDeleteTask(localId) {
+      if (!gIsSignedIn() && !(await gEnsureToken())) return;
+      if (!gTasklistId) return;
+      const gid = gIdMap[localId];
+      if (!gid) return;
+      try {
+        await fetch(GTASKS_API + '/lists/' + gTasklistId + '/tasks/' + gid, {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + gAccessToken }
+        });
+        delete gIdMap[localId];
+        saveGIdMap();
+      } catch (e) { console.warn('gDeleteTask:', e.message); }
+    }
+
+    // Push all local (non-bench) tasks to Google Tasks
+    async function gSyncAll() {
+      if (!gIsSignedIn() && !(await gEnsureToken())) {
+        showToast('Not signed in to Google — tap Sign in first.', 'warning'); return;
+      }
+      const eligible = tasks.filter(t => !t.id.startsWith('bench-'));
+      if (eligible.length === 0) { showToast('No tasks to sync.', 'info'); return; }
+      setEl('gTasksSyncStatus', 'Syncing…');
+      let ok = 0;
+      for (const task of eligible) {
+        await gSyncTask(task);
+        ok++;
+        if (ok % 10 === 0) setEl('gTasksSyncStatus', `${ok} / ${eligible.length}`);
+        await new Promise(r => setTimeout(r, 0)); // keep UI responsive
+      }
+      setEl('gTasksSyncStatus', `✓ ${ok} pushed`);
+      showToast(`Synced ${ok} task(s) to Google Tasks`, 'success');
+    }
+
+    function gSignOut() {
+      gAccessToken = null;
+      gTokenExpiry  = 0;
+      gTasklistId   = null;
+      gUserProfile  = null;
+      saveGProfile(null);
+      localStorage.removeItem('TASKFLOW_GTASKS_LIST_ID');
+      if (typeof google !== 'undefined' && google.accounts?.oauth2) {
+        google.accounts.oauth2.revoke(gAccessToken || '', () => {});
+      }
+      updateGTasksUI();
+      showToast('Signed out of Google', 'info');
+    }
+
+    function updateGTasksUI() {
+      const signedIn = gIsSignedIn() || !!gUserProfile;
+      const outDiv = document.getElementById('gTasksSignedOut');
+      const inDiv  = document.getElementById('gTasksSignedIn');
+      if (!outDiv || !inDiv) return;
+      if (signedIn) {
+        outDiv.classList.add('hidden');
+        inDiv.classList.remove('hidden');
+        setEl('gUserName',  gUserProfile?.name  || 'Google User');
+        setEl('gUserEmail', gUserProfile?.email || '');
+        const avatar = document.getElementById('gUserAvatar');
+        if (avatar) avatar.textContent = (gUserProfile?.name || 'G').charAt(0).toUpperCase();
+      } else {
+        outDiv.classList.remove('hidden');
+        inDiv.classList.add('hidden');
+        setEl('gTasksSyncStatus', '—');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function initGoogleTasks() {
+      const on = (id, ev, fn) => document.getElementById(id)?.addEventListener(ev, fn);
+
+      on('gSignInBtn', 'click', () => {
+        if (!GOOGLE_CLIENT_ID) {
+          showToast('Set GOOGLE_CLIENT_ID in the source file first.', 'error'); return;
+        }
+        gRequestToken();
+      });
+
+      on('gSignOutBtn', 'click', gSignOut);
+
+      on('gSyncAllBtn', 'click', gSyncAll);
+
+      // Attempt silent restore once GIS is ready
+      if (document.readyState === 'complete') {
+        gTrySilentRestore();
+      } else {
+        window.addEventListener('load', gTrySilentRestore);
+      }
     }
 
     // ── Window-level accessors for inline digest buttons ──────
